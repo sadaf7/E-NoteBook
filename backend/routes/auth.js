@@ -13,17 +13,19 @@ body('name','Enter a valid name'),
 body('email','Enter a valid email').isEmail(),
 body('password','Enter a valid password').isLength({min:4})
 ],async(req,res)=>{
+   let success = false;
     const errors = validationResult(req);
-    // data validation if there is error or emtpty string throw error
-    if(!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() })
+    // data validation if there is error or emtpty string throw error   
+    if(!errors.isEmpty()) {       
+      return res.status(400).json({success,errors: errors.array() })
     }
     try {
         // checking if the email exist or not
         let user = await User.findOne({email: req.body.user});
-   if(user){
-    return res.status(401).send("Sorry user with this email already exist");
-   }
+    
+    if(user){       
+        return res.status(401).send({success,error:"Sorry user with this email already exist"});
+    }
     // Hashing password and adding salt
     const salt = await bcrypt.genSalt(10);
     const secPass = await bcrypt.hash(req.body.password,salt)    
@@ -33,16 +35,16 @@ body('password','Enter a valid password').isLength({min:4})
     email: req.body.email,
     password: secPass,
   })
-  res.json(user);
 
   // JWT auth
-  data={
+  const data={
     user:{
         id:user.id
     }
   }
   let auth = jwt.sign(data,JWT_SEC);
-  console.log(auth);
+  success = true;
+  res.json({success,auth});
     } catch (error) {
         res.status(401).send({error:"Some Internal server error"})
     }      
@@ -50,25 +52,26 @@ body('password','Enter a valid password').isLength({min:4})
 
 //ROUTE 2: Login user using POST req
 router.post('/loginUser',[
-    body('email','Enter a valid email').exists().isEmail(),
-    body('password','Enter a valid password').isLength({min:4})
+    body('email','Enter a valid email2').isEmail(),
+    body('password','Enter a valid password').exists()
 ],async (req,res)=>{
+    let success = false;
     // data validation if there is error or emtpty string throw error
     const errors = validationResult(req);
     try {
         if(!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() })
+            return res.status(400).json({success, errors: errors.array() })
           }
     
           const {email,password} = req.body
         //   authenticating email exist or not
         let user = await User.findOne({email})
         if(!user){
-            return res.status(400).json({error:"Enter a valid email"})
+            return res.status(400).json({success,error:"Enter a valid email"})
         }
         const compare = await bcrypt.compare(password,user.password);
         if(!compare){
-            res.status(400).send({error:"Enter a valid password"})
+            res.status(400).send({success,error:"Enter a valid password"})
         }
     
         // JWT auth
@@ -78,7 +81,8 @@ router.post('/loginUser',[
             }
         }
         let auth = jwt.sign(data,JWT_SEC);
-        res.json(auth);
+        success = true;
+        res.json({success,auth});
     } catch (error) {
         res.status(401).send({error:"Some Internal server error"})
     } 
