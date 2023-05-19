@@ -12,6 +12,7 @@ import Login from './Components/Login';
 import Signup from './Components/Signup';
 import Alert from './Components/Alert';
 import { useState } from 'react';
+import ProfileState from './context/profileState';
 
 function App() {
   const [alert, setAlert] = useState(null);
@@ -28,9 +29,13 @@ function App() {
 
   return (
     <>
+    <ProfileState>
     <NoteState>
     <Router>
+      <div className="container">
+
       <Navbar/>
+      </div>
       <Alert alert={alert}/>
       <div className="container">
       <Routes>
@@ -43,6 +48,7 @@ function App() {
       </div>
     </Router>
     </NoteState>
+    </ProfileState>
     </>
   );
 }

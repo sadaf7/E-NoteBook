@@ -17,10 +17,7 @@ const AddNotes = (props) => {
         // [e.target.name]:e.target.value -- add new value
     }
   return (
-    <div>
-    <div className=" mb-3">
-      <h1>Add Note</h1>
-    </div>
+    <div className='container mt-4 text-white' style={{backgroundColor:"#5e5c55"}} >
 
     <div className="mb-3">
       <label htmlFor="title" className="form-label">Title</label>
